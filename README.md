@@ -1,4 +1,4 @@
-# sw_hackathon
+# SW_HACKATHON
 
 A new Flutter project.
 
