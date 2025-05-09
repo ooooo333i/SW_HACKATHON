@@ -13,7 +13,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Fit Care',
+          'fitCare',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
         ),
         leading: IconButton(onPressed: () {}, icon: Icon(Icons.account_circle)),
