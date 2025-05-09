@@ -101,6 +101,16 @@ class _HomeState extends State<Home> {
                   });
                 },
               ),
+              MenuContainer(
+                title: '통계 보기',
+                description: '본인의 운동 기록을 돌아보아요.',
+                icon: Icons.bar_chart,
+                onTap: () {
+                  Navigator.pushNamed(context, '/statistics').then((_) {
+                    setState(() {}); // 개인설정 페이지에서 돌아오면 setState로 리렌더링
+                  });
+                },
+              ),
             ],
           ),
         ),
