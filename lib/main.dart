@@ -68,6 +68,7 @@ class _MyAppState extends State<MyApp> {
         '/sign-in': (context) => const Loginscreen(),
         '/profile': (context) => const ProfilePage(),
         '/recommand':(context) => const Recommand(),
+        '/statistics':(context) => const Statistics(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 161, 198, 92)),
