@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:sw_hackathon/route/home.dart';
 import 'package:sw_hackathon/login/loginscreen.dart';
 import 'package:sw_hackathon/login/profile.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // 플랫폼별 초기화 정보
+  );
   runApp(const MyApp());
 }
 
