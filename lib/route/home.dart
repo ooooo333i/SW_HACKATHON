@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sw_hackathon/UI/youtube.dart';
 import 'package:sw_hackathon/UI/exercise_recommand.dart';
+import 'package:sw_hackathon/UI/menu_container.dart';
 import 'package:horizontal_week_calendar/horizontal_week_calendar.dart';
 
 class Home extends StatefulWidget {
@@ -63,6 +64,32 @@ class _HomeState extends State<Home> {
                   });
                 },
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: MenuContainer(
+                      title: '운동\n추천받기',
+                      description: '나에게 알맞은 맞춤 운동을 학습해보세요.',
+                      icon: Icons.fitness_center,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/recommand');
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10), // 두 컨테이너 사이에 간격 추가
+                  Expanded(
+                    child: MenuContainer(
+                      title: '운동\n시작하기',
+                      description: '나에게 알맞은 루틴으로 운동해보세요.',
+                      icon: Icons.fitness_center,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/recommend');
+                      },
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/personalsetting').then((_) {
@@ -71,11 +98,6 @@ class _HomeState extends State<Home> {
                 },
                 icon: Icon(Icons.settings_accessibility),
               ),
-             
-              
-            
-              
-              if (user != null) ExerciseRecommand(),
             ],
           ),
         ),
