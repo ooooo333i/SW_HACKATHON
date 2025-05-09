@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sw_hackathon/UI/personalsetting.dart';
 import 'package:sw_hackathon/route/home.dart';
 import 'package:sw_hackathon/login/loginscreen.dart';
 import 'package:sw_hackathon/login/profile.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const Home(),
+        '/personalsetting': (context) => const Personalsetting(),
         '/sign-in': (context) => const Loginscreen(),
         '/profile': (context) => const ProfilePage(),
       },
