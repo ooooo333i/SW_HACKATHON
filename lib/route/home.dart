@@ -105,11 +105,8 @@ class _HomeState extends State<Home> {
                 icon: Icon(Icons.add_circle_rounded),
               ),
               // ExerciseRecommand 위젯을 Key를 사용해서 새로 그리게 하기
-              if (user != null)
-                ExerciseRecommand(
-                  uid: user.uid,
-                  key: ValueKey(selectedDate.toIso8601String()), // 날짜 변경 시 새로 그려짐
-                ),
+              
+              if (user != null) ExerciseRecommand(),
             ],
           ),
         ),

@@ -24,7 +24,7 @@ class _PreparesessionState extends State<Preparesession> {
               },
               child: Text('Start Session'),
             ),
-            ExerciseRecommand(uid: user!.uid),
+            ExerciseRecommand(),
           ],
         ),
       ),
