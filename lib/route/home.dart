@@ -71,40 +71,9 @@ class _HomeState extends State<Home> {
                 },
                 icon: Icon(Icons.settings_accessibility),
               ),
-              IconButton(
-                icon: Icon(Icons.play_circle),
-                onPressed: () {
-                  showYoutubePlayerFromUrl(
-                    context,
-                    "https://www.youtube.com/watch?v=pdojBp7aoBc",
-                  );
-                },
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
-              ),
-              // ExerciseRecommand 위젯을 Key를 사용해서 새로 그리게 하기
+             
+              
+            
               
               if (user != null) ExerciseRecommand(),
             ],
