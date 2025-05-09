@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sw_hackathon/UI/youtube.dart';
@@ -49,10 +51,12 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: SingleChildScrollView(
+  
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
+              SizedBox(height: 60,),
               HorizontalWeekCalendar(
                 minDate: startOfWeek,
                 maxDate: endOfWeek,
@@ -85,7 +89,7 @@ class _HomeState extends State<Home> {
                       description: '알맞은 루틴으로 운동해보세요.',
                       icon: Icons.directions_run,
                       onTap: () {
-                        Navigator.pushNamed(context, '/recommend');
+                        Navigator.pushNamed(context, '/prepare');
                       },
                     ),
                   ),

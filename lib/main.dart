@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // ✅ 추가
 import 'package:provider/provider.dart';
 import 'package:sw_hackathon/route/recommand.dart';
 import 'package:sw_hackathon/route/statistics.dart';
-
+import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'package:sw_hackathon/providers/exercise_data.dart';
 import 'package:sw_hackathon/UI/personalsetting.dart';
@@ -18,6 +18,7 @@ import 'package:sw_hackathon/route/preparesession.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ko_KR', null);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

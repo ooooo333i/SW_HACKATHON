@@ -14,7 +14,7 @@ class SessionContainer extends StatefulWidget {
 }
 
 class _SessionContainerState extends State<SessionContainer> {
-  int sets = 1;
+  int sets = 0;
 
   void _updateSets(int newSets) {
     setState(() {

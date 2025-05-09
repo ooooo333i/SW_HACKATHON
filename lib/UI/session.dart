@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sw_hackathon/route/preparesession.dart';
 import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sw_hackathon/save_session.dart';
 
 class Session extends StatefulWidget {
   const Session({super.key});
@@ -17,7 +19,7 @@ class _SessionState extends State<Session> {
   @override
   void initState() {
     super.initState();
-    progressNotifier = ValueNotifier(0.0);
+    progressNotifier = ValueNotifier(0.0); // 운동 시작 전 진척도 0
   }
 
   @override
@@ -54,7 +56,10 @@ class _SessionState extends State<Session> {
     progressNotifier.value = overallProgress;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("운동 세션")),
+      appBar: AppBar(title: const Text("운동 세션"),
+      actions: [
+        IconButton(onPressed: (){}, icon: Icon(FontAwesomeIcons.heartPulse))
+      ],),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -65,22 +70,25 @@ class _SessionState extends State<Session> {
                 dimensions: 150,
                 valueNotifier: progressNotifier,
                 maxProgress: 1.0,
+                animation: true,
                 foregroundColor: Colors.green,
                 backgroundColor: Colors.grey.shade300,
-                animation: true,
-                startAngle: 270,
-                sweepAngle: 360,
                 backgroundStrokeWidth: 2,
                 foregroundStrokeWidth: 12,
                 backgroundGapSize: 2,
                 backgroundDashSize: 2,
                 seekSize: 8,
+                startAngle: 270,
+                sweepAngle: 360,
                 child: Center(
-                  child: Text(
-                    '${(overallProgress * 100).toInt()}%',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  child: ValueListenableBuilder<double>(
+                    valueListenable: progressNotifier,
+                    builder: (context, value, _) => Text(
+                      '${(value * 100).toInt()}%',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -155,7 +163,7 @@ class _SessionState extends State<Session> {
                         content: const Text("모든 운동 세트를 완료했습니다!"),
                         actions: [
                           TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => {Navigator.pushNamed(context, '/'),saveSessionData(exercises)},
                             child: const Text("확인"),
                           ),
                         ],
