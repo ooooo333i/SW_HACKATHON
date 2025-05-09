@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -81,7 +82,9 @@ class _HomeState extends State<Home> {
                 onPressed: () {},
                 icon: Icon(Icons.add_circle_rounded),
               ),
-              ExerciseRecommand()
+              
+              if (user != null) 
+                ExerciseRecommand(uid: user.uid)
             ],
           ),
         ),

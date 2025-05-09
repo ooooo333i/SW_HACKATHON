@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ExerciseRecommand extends StatefulWidget {
-  const ExerciseRecommand({super.key});
+  final String uid;
+
+  const ExerciseRecommand({super.key, required this.uid});
 
   @override
   State<ExerciseRecommand> createState() => _ExerciseRecommandState();
@@ -15,17 +17,23 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
   @override
   void initState() {
     super.initState();
-    recommendedExercises = fetchRecommendedExercises();
+    recommendedExercises = fetchRecommendedExercises(widget.uid);
   }
 
-  Future<List<Map<String, String>>> fetchRecommendedExercises() async {
+  Future<List<Map<String, String>>> fetchRecommendedExercises(String uid) async {
     try {
-      final userAge = "10대";
-      final userGender = "M"; // 남성
-      final userDisability = "시각장애";
-      final userGrade = "1등급";
+      // 🔹 사용자 정보 불러오기
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
-      // exercise_data에서 조건에 맞는 운동 추천 데이터 가져오기
+      if (!userDoc.exists) return [];
+
+      final userData = userDoc.data()!;
+      final userAge = _convertAgeToRange(userData['age']);
+      final userGender = _convertGender(userData['gender']);
+      final userDisability = userData['disabilityType'];
+      final userGrade = userData['disabilityLevel'];
+
+      // 🔹 조건에 맞는 운동 추천 데이터 불러오기
       final exerciseDataSnap = await FirebaseFirestore.instance
           .collection('exercise_data')
           .where('AGRDE_FLAG_NM', isEqualTo: userAge)
@@ -41,12 +49,11 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
 
       if (recommendedNames.isEmpty) return [];
 
-      // exercise_list에서 운동 정보 가져오기
+      // 🔹 전체 운동 목록에서 해당 운동들의 정보만 추출
       final exerciseListSnap = await FirebaseFirestore.instance
           .collection('exercise_list')
           .get();
 
-      // exercise_list를 Map으로 변환하여 이름으로 빠르게 조회할 수 있도록 함
       final exerciseMap = {
         for (var doc in exerciseListSnap.docs)
           doc['name']: {
@@ -56,7 +63,6 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
           }
       };
 
-      // 추천된 운동 이름에 맞는 운동 정보를 가져오기
       final exercises = recommendedNames
           .where((name) => exerciseMap.containsKey(name))
           .map((name) {
@@ -76,6 +82,42 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
     }
   }
 
+  String _convertAgeToRange(dynamic age) {
+    if (age is int) {
+      if (age < 20) return '10대';
+      if (age < 30) return '20대';
+      if (age < 40) return '30대';
+      if (age < 50) return '40대';
+      return '50대이상';
+    }
+    return '기타';
+  }
+
+  String _convertGender(String gender) {
+    return gender == "남성" ? "M" : "F";
+  }
+
+  void showYoutubePlayerFromUrl(BuildContext context, String youtubeUrl) {
+    final videoId = YoutubePlayer.convertUrlToId(youtubeUrl);
+    if (videoId == null) return;
+
+    YoutubePlayerController controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(autoPlay: false),
+    );
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        content: YoutubePlayer(
+          controller: controller,
+          showVideoProgressIndicator: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, String>>>(
@@ -89,19 +131,11 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
 
         final exercises = snapshot.data!;
         return ListView.builder(
-          shrinkWrap: true, // ListView의 크기를 적절히 조정
-          physics: const NeverScrollableScrollPhysics(), // 부모가 스크롤을 처리하도록 설정
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: exercises.length,
           itemBuilder: (context, index) {
             final exercise = exercises[index];
-
-            // YouTube video ID를 추출하여 플레이어를 만듬
-            final videoId = YoutubePlayer.convertUrlToId(exercise['youtube_link']!);
-            final YoutubePlayerController _controller = YoutubePlayerController(
-              initialVideoId: videoId!,
-              flags: const YoutubePlayerFlags(autoPlay: false),
-            );
-
             return Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
@@ -126,13 +160,12 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
                       style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 16),
-                    // YouTube Player 컨테이너 내에서 바로 표시
-                    Container(
-                      height: 200, // YouTube 플레이어 높이 설정
-                      child: YoutubePlayer(
-                        controller: _controller,
-                        showVideoProgressIndicator: true,
+                    YoutubePlayer(
+                      controller: YoutubePlayerController(
+                        initialVideoId: YoutubePlayer.convertUrlToId(exercise['youtube_link']!)!,
+                        flags: const YoutubePlayerFlags(autoPlay: false),
                       ),
+                      showVideoProgressIndicator: true,
                     ),
                   ],
                 ),
