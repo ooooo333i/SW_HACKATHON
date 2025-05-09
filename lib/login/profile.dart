@@ -10,6 +10,9 @@ class ProfilePage extends StatelessWidget {
 
     return ProfileScreen(
       providers: providers,
+      appBar: AppBar(
+        leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios_new)),
+      ),
       actions: [
         SignedOutAction((context) {
           Navigator.pushReplacementNamed(context, '/sign-in');

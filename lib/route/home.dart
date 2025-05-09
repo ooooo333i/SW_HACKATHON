@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
+              
               IconButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/personalsetting');
