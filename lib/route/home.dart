@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sw_hackathon/UI/youtube.dart';
-import 'package:sw_hackathon/UI/exercise_container.dart';
+import 'package:sw_hackathon/UI/exercise_recommand.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -81,8 +81,7 @@ class _HomeState extends State<Home> {
                 onPressed: () {},
                 icon: Icon(Icons.add_circle_rounded),
               ),
-              ExerciseContainer(),
-              ExerciseContainer(),
+              ExerciseRecommand()
             ],
           ),
         ),

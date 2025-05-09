@@ -12,6 +12,7 @@ class ExerciseContainer extends StatefulWidget {
 
 class _ExerciseContainerState extends State<ExerciseContainer> {
   late Future<Map<String, String>?> exercise;
+  late YoutubePlayerController _controller;
 
   @override
   void initState() {
@@ -54,32 +55,19 @@ class _ExerciseContainerState extends State<ExerciseContainer> {
       // 랜덤으로 운동 선택
       final random = Random();
       final selected = exercises[random.nextInt(exercises.length)];
+
+      // YouTube 플레이어 초기화 (autoPlay: false로 설정하여 자동 재생을 방지)
+      final videoId = YoutubePlayer.convertUrlToId(selected['youtube_link']!);
+      _controller = YoutubePlayerController(
+        initialVideoId: videoId!,
+        flags: YoutubePlayerFlags(autoPlay: false, mute: false),
+      );
+
       return selected;
     } catch (e) {
       print('🔥 Error fetching exercise: $e');
       return null;
     }
-  }
-
-  void showYoutubePlayerFromUrl(BuildContext context, String youtubeUrl) {
-    final videoId = YoutubePlayer.convertUrlToId(youtubeUrl);
-    if (videoId == null) return;
-
-    YoutubePlayerController controller = YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: YoutubePlayerFlags(autoPlay: true),
-    );
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        contentPadding: EdgeInsets.zero,
-        content: YoutubePlayer(
-          controller: controller,
-          showVideoProgressIndicator: true,
-        ),
-      ),
-    );
   }
 
   @override
@@ -117,14 +105,10 @@ class _ExerciseContainerState extends State<ExerciseContainer> {
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 16),
-                  IconButton(
-                    icon: Icon(Icons.play_circle),
-                    onPressed: () {
-                      showYoutubePlayerFromUrl(
-                        context,
-                        exerciseData['youtube_link']!,  // Firestore에서 가져온 youtube_link 사용
-                      );
-                    },
+                  // YouTube 플레이어를 항상 표시 (자동 재생은 False로 설정)
+                  YoutubePlayer(
+                    controller: _controller,
+                    showVideoProgressIndicator: true,
                   ),
                 ],
               ),
