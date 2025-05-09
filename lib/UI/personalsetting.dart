@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:sw_hackathon/providers/exercise_data.dart';
 
 class Personalsetting extends StatefulWidget {
   const Personalsetting({super.key});
@@ -52,53 +54,98 @@ class _PersonalsettingState extends State<Personalsetting> {
 
   //데이터 연동 부분
   Future<void> saveUserInfoToFirestore() async {
-  final user = FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
 
-  if (user == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("로그인이 필요합니다.")),
-    );
-    return;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("로그인이 필요합니다.")),
+      );
+      return;
+    }
+
+    final uid = user.uid;
+
+    // 저장할 데이터 Map으로 변환
+    final userData = {
+      "role": userInfo.role,
+      "gender": userInfo.gender,
+      "age": userInfo.age,
+      "disabilityLevel": userInfo.disabilityLevel,
+      "disabilityType": userInfo.disabilityType,
+      "spinalDetail": selectedDisabilityType == "척수장애"
+          ? ["T6이상", "T6미만", "사지마비"][selectedSpinalIndex]
+          : null,
+    };
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(userData);
+
+      // 추천 운동 데이터 갱신
+      final exerciseData = Provider.of<ExerciseData>(context, listen: false);
+      await exerciseData.fetchRecommendedExercises(uid);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("개인정보가 저장되었습니다.")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("저장 실패: $e")),
+      );
+    }
   }
 
-  final uid = user.uid;
-
-  // 저장할 데이터 Map으로 변환
-  final userData = {
-    "role": userInfo.role,
-    "gender": userInfo.gender,
-    "age": userInfo.age,
-    "disabilityLevel": userInfo.disabilityLevel,
-    "disabilityType": userInfo.disabilityType,
-    "spinalDetail": selectedDisabilityType == "척수장애"
-        ? ["T6이상", "T6미만", "사지마비"][selectedSpinalIndex]
-        : null,
-  };
-
-  try {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .set(userData); // 또는 .update(userData) 가능
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("개인정보가 저장되었습니다.")),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("저장 실패: $e")),
-    );
-  }
-}
   @override
   void initState() {
     super.initState();
+    loadUserInfo();
     userInfo = PersonalInfo(
       role: userRoles[selectedRoleIndex].title ?? "미입력",
       gender: genders[selectedGenderIndex].title ?? "미입력",
       disabilityLevel: selectedDisabilityLevel,
       disabilityType: selectedDisabilityType,
     );
+  }
+
+  // 사용자 정보 로드 함수 추가
+  Future<void> loadUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          selectedRoleIndex = userRoles.indexWhere((r) => r.title == data['role']);
+          selectedGenderIndex = genders.indexWhere((g) => g.title == data['gender']);
+          calculatedAge = data['age'];
+          selectedDisabilityLevel = data['disabilityLevel'];
+          selectedDisabilityType = data['disabilityType'];
+          if (data['spinalDetail'] != null) {
+            selectedSpinalIndex = ["T6이상", "T6미만", "사지마비"].indexOf(data['spinalDetail']);
+          }
+          
+          userInfo = PersonalInfo(
+            role: data['role'],
+            gender: data['gender'],
+            age: data['age'],
+            disabilityLevel: data['disabilityLevel'],
+            disabilityType: data['disabilityType'],
+          );
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("데이터 로드 실패: $e")),
+      );
+    }
   }
 
   @override

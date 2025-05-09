@@ -31,7 +31,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'fitCare',
           style: GoogleFonts.titanOne(
             fontSize: 40,           // 글자 크기

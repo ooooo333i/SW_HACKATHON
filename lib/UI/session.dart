@@ -11,11 +11,32 @@ class Session extends StatefulWidget {
   State<Session> createState() => _SessionState();
 }
 
-class _SessionState extends State<Session> {
+class _SessionState extends State<Session> with SingleTickerProviderStateMixin {
   int currentIndex = 0;
   int currentSet = 1;
   late ValueNotifier<double> progressNotifier;
   late List<ExerciseSet> exercises;
+  late AnimationController _controller;
+
+  void _updateProgressWithAnimation(double targetValue) {
+    double startValue = progressNotifier.value;
+    double currentValue = startValue;
+    const totalSteps = 20; // 60 FPS에 맞춰서
+    const duration = Duration(milliseconds: 1500);
+    final stepDuration = duration.inMilliseconds ~/ totalSteps;
+    int currentStep = 0;
+
+    void animate() {
+      if (currentStep < totalSteps && mounted) {
+        currentStep++;
+        currentValue = startValue + (targetValue - startValue) * (currentStep / totalSteps);
+        progressNotifier.value = currentValue;
+        Future.delayed(Duration(milliseconds: stepDuration), animate);
+      }
+    }
+
+    animate();
+  }
 
   @override
   void initState() {
@@ -56,11 +77,6 @@ class _SessionState extends State<Session> {
     final currentExercise = exercises[currentIndex];
     final totalSets = currentExercise.sets;
 
-    // 전체 진척도 계산
-    final overallProgress =
-        ((currentIndex * totalSets) + currentSet) / (totalExercises * totalSets);
-    progressNotifier.value = overallProgress;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("운동 세션"),
@@ -79,16 +95,19 @@ class _SessionState extends State<Session> {
             Center(
               child: DashedCircularProgressBar.square(
                 dimensions: 150,
-                valueNotifier: progressNotifier,
+                progress: progressNotifier.value,
                 maxProgress: 1.0,
-                animation: true,
+                corners: StrokeCap.round,
                 foregroundColor: Colors.green,
                 backgroundColor: Colors.grey.shade300,
                 backgroundStrokeWidth: 2,
                 foregroundStrokeWidth: 12,
-                backgroundGapSize: 2,
-                backgroundDashSize: 2,
+                backgroundGapSize: 4,
+                backgroundDashSize: 4,
+                foregroundGapSize: 4,
+                foregroundDashSize: 4,
                 seekSize: 8,
+                seekColor: Colors.green,
                 startAngle: 270,
                 sweepAngle: 360,
                 child: Center(
@@ -165,11 +184,19 @@ class _SessionState extends State<Session> {
                   setState(() {
                     currentSet++;
                   });
+                  final totalSets = currentExercise.sets;
+                  final totalExercises = exercises.length;
+                  final newProgress = ((currentIndex * totalSets) + currentSet) / (totalExercises * totalSets);
+                  _updateProgressWithAnimation(newProgress);
                 } else if (currentIndex < totalExercises - 1) {
                   setState(() {
                     currentIndex++;
                     currentSet = 1;
                   });
+                  final totalSets = exercises[currentIndex].sets;
+                  final totalExercises = exercises.length;
+                  final newProgress = ((currentIndex * totalSets) + currentSet) / (totalExercises * totalSets);
+                  _updateProgressWithAnimation(newProgress);
                 } else {
                   // 세션 종료
                   await saveSessionData(exercises);
