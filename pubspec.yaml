@@ -38,6 +38,7 @@ dependencies:
   flutter_toggle_tab: ^1.5.1
   youtube_player_flutter: ^9.1.1
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
