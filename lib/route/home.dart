@@ -102,7 +102,7 @@ class _HomeState extends State<Home> {
                 icon: Icon(Icons.add_circle_rounded),
               ),
 
-              if (user != null) ExerciseRecommand(uid: user.uid),
+              if (user != null) ExerciseRecommand(),
             ],
           ),
         ),

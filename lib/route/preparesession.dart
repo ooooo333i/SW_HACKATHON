@@ -19,7 +19,7 @@ class _PreparesessionState extends State<Preparesession> {
       ),
       body: Column(
         children: [
-          ExerciseRecommand(uid: user!.uid)
+          ExerciseRecommand()
         ],
       ),
     );
