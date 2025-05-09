@@ -4,12 +4,13 @@ import 'package:sw_hackathon/route/home.dart';
 import 'package:sw_hackathon/login/loginscreen.dart';
 import 'package:sw_hackathon/login/profile.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sw_hackathon/route/preparesession.dart';
 import 'firebase_options.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // 플랫폼별 초기화 정보
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const Home(),
+        '/prepare':(context) =>const Preparesession(),
         '/personalsetting': (context) => const Personalsetting(),
         '/sign-in': (context) => const Loginscreen(),
         '/profile': (context) => const ProfilePage(),
