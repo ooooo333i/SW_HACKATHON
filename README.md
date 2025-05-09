@@ -6,6 +6,7 @@
 # fitCare
 
 ---
+iOS TestFlight 사용문의 (antmdrl0531@gmail.com)
 
 ## fitCare 는 장애인을 위한 맞춤형 운동 루틴 추천 및 운동 기록 통계 어플리케이션 입니다.
 
