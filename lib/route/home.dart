@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sw_hackathon/UI/youtube.dart';
 import 'package:sw_hackathon/UI/exercise_recommand.dart';
@@ -26,7 +26,9 @@ class _HomeState extends State<Home> {
           'fitCare',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
         ),
-        leading: IconButton(onPressed: () {}, icon: Icon(Icons.account_circle)),
+        leading: IconButton(onPressed: () {
+          Navigator.pushNamed(context,'/prepare');
+        }, icon: Icon(Icons.play_arrow)),
         actions: [
           IconButton(
             onPressed: () {
@@ -60,7 +62,9 @@ class _HomeState extends State<Home> {
               ),
               IconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/personalsetting');
+                  Navigator.pushNamed(context, '/personalsetting').then((_) {
+                    setState(() {}); // ← 이것만으로도 ExerciseRecommand가 다시 build됩니다.
+                  });
                 },
                 icon: Icon(Icons.settings_accessibility),
               ),
@@ -97,9 +101,8 @@ class _HomeState extends State<Home> {
                 onPressed: () {},
                 icon: Icon(Icons.add_circle_rounded),
               ),
-              
-              if (user != null) 
-                ExerciseRecommand(uid: user.uid)
+
+              if (user != null) ExerciseRecommand(uid: user.uid),
             ],
           ),
         ),
