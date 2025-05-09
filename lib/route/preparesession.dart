@@ -20,23 +20,22 @@ class ExerciseSet {
 }
 
 class _PreparesessionState extends State<Preparesession> {
+  
   List<ExerciseSet> sessionExercises = [];
-
+  
   @override
   void initState() {
-    super.initState();
-    final user = FirebaseAuth.instance.currentUser;
+  super.initState();
+  final user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      Future.microtask(() async {
-        if (!mounted) return; // ✅ context 사용 전 확인
-        await Provider.of<ExerciseData>(
-          context,
-          listen: false,
-        ).fetchRecommendedExercises(user.uid);
-      });
-    }
+  if (user != null) {
+    Future.microtask(() async {
+      if (!mounted) return; // ✅ context 사용 전 확인
+      await Provider.of<ExerciseData>(context, listen: false)
+          .fetchRecommendedExercises(user.uid);
+    });
   }
+}
 
   void updateExercise(String name, int sets) {
     final index = sessionExercises.indexWhere((e) => e.name == name);

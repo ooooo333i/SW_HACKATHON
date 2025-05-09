@@ -67,10 +67,11 @@ class _HomeState extends State<Home> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  
                   Expanded(
                     child: MenuContainer(
                       title: '운동\n추천받기',
-                      description: '나에게 알맞은 맞춤 운동을 학습해보세요.',
+                      description: '알맞은 맞춤 운동을 학습해보세요.',
                       icon: Icons.fitness_center,
                       onTap: () {
                         Navigator.pushNamed(context, '/recommand');
@@ -81,7 +82,7 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: MenuContainer(
                       title: '운동\n시작하기',
-                      description: '나에게 알맞은 루틴으로 운동해보세요.',
+                      description: '알맞은 루틴으로 운동해보세요.',
                       icon: Icons.fitness_center,
                       onTap: () {
                         Navigator.pushNamed(context, '/recommend');
