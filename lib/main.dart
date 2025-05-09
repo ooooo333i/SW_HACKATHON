@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sw_hackathon/route/home.dart';
 
 void main() {
+  
   runApp(const MyApp());
 }
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const Home(),
       },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 62, 174, 197)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 145, 189, 64)),
       ),
     );
   }

@@ -13,10 +13,10 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'SW_HACKATHON',
+          'Fit Care',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
         ),
-        leading: IconButton(onPressed: () {}, icon: Icon(Icons.add_box)),
+        leading: IconButton(onPressed: () {}, icon: Icon(Icons.account_circle)),
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.add_box))],
       ),
     );

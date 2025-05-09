@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "593815115508",
+    "project_id": "fitcare-6fc88",
+    "storage_bucket": "fitcare-6fc88.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593815115508:android:2f509003bdbde01a8d70a1",
+        "android_client_info": {
+          "package_name": "com.example.sw_hackathon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB13AoKWj0QDPOi0ZXQ_cg-zS5owcnHQQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
