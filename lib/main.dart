@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
       },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 145, 189, 64)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 161, 198, 92)),
       ),
     );
   }
