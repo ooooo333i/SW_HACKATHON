@@ -22,16 +22,26 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
 
   Future<List<Map<String, String>>> fetchRecommendedExercises(String uid) async {
     try {
+      print("✅ 유저 uid: $uid");
+
       // 🔹 사용자 정보 불러오기
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
-      if (!userDoc.exists) return [];
+      if (!userDoc.exists) {
+        print("❌ 유저 문서가 존재하지 않음");
+        return [];
+      }
 
       final userData = userDoc.data()!;
+      print("✅ 유저 데이터: $userData");
+
       final userAge = _convertAgeToRange(userData['age']);
       final userGender = _convertGender(userData['gender']);
       final userDisability = userData['disabilityType'];
-      final userGrade = userData['disabilityLevel'];
+      final userGradeRaw = userData['disabilityLevel'];
+      final userGrade = _normalizeDisabilityLevel(userGradeRaw);
+
+      print("🔍 변환된 정보 => 나이: $userAge / 성별: $userGender / 장애유형: $userDisability / 장애등급: $userGrade");
 
       // 🔹 조건에 맞는 운동 추천 데이터 불러오기
       final exerciseDataSnap = await FirebaseFirestore.instance
@@ -42,17 +52,19 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
           .where('TROBL_GRAD_NM', isEqualTo: userGrade)
           .get();
 
+      print("📌 추천 운동 문서 수: ${exerciseDataSnap.docs.length}");
+
       final recommendedNames = exerciseDataSnap.docs
           .map((doc) => doc.data()['RECOMEND_MVM_NM']?.toString() ?? '')
           .where((name) => name.isNotEmpty)
           .toSet();
 
+      print("🎯 추천 운동 이름 목록: $recommendedNames");
+
       if (recommendedNames.isEmpty) return [];
 
-      // 🔹 전체 운동 목록에서 해당 운동들의 정보만 추출
-      final exerciseListSnap = await FirebaseFirestore.instance
-          .collection('exercise_list')
-          .get();
+      // 🔹 전체 운동 목록에서 해당 운동 정보 가져오기
+      final exerciseListSnap = await FirebaseFirestore.instance.collection('exercise_list').get();
 
       final exerciseMap = {
         for (var doc in exerciseListSnap.docs)
@@ -66,14 +78,16 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
       final exercises = recommendedNames
           .where((name) => exerciseMap.containsKey(name))
           .map((name) {
-            final exercise = exerciseMap[name]!;
+            final e = exerciseMap[name]!;
             return {
-              'name': exercise['name'] as String,
-              'description': exercise['description'] as String,
-              'youtube_link': exercise['youtube_link'] as String,
+              'name': e['name'].toString(),
+              'description': e['description'].toString(),
+              'youtube_link': e['youtube_link'].toString(),
             };
           })
           .toList();
+
+      print("✅ 최종 추천 운동 개수: ${exercises.length}");
 
       return exercises;
     } catch (e) {
@@ -95,6 +109,17 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
 
   String _convertGender(String gender) {
     return gender == "남성" ? "M" : "F";
+  }
+
+  String _normalizeDisabilityLevel(String level) {
+    // 숫자 등급
+    level = level.replaceAll('급', '등급');
+
+    // 마비 여부 띄어쓰기
+    level = level.replaceAll('완전마비', '완전 마비');
+    level = level.replaceAll('불완전마비', '불완전 마비');
+
+    return level;
   }
 
   void showYoutubePlayerFromUrl(BuildContext context, String youtubeUrl) {
@@ -149,10 +174,7 @@ class _ExerciseRecommandState extends State<ExerciseRecommand> {
                   children: [
                     Text(
                       exercise['name']!,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
