@@ -1,16 +1,36 @@
-# SW_HACKATHON
+# fitCare
 
-A new Flutter project.
+![KakaoTalk_20250510_070730861.png](attachment:a36677c9-3150-4b75-964c-08211684682d:KakaoTalk_20250510_070730861.png)
 
-## Getting Started
+# fitCare
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## fitCare 는 장애인을 위한 맞춤형 운동 루틴 추천 및 운동 기록 통계 어플리케이션 입니다.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![image.png](attachment:fbcc6af6-4e2a-4f2a-8e2e-722f0cc77779:image.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📱 주요 기능
+
+### 1. 🏋️운동 추천
+
+- 사용자 정보(나이, 장애 유형 등)를 기반으로 추천 운동 표시
+- 각 운동에 대한 설명 및 YouTube 영상 링크 제공
+
+### 2. 🏃‍♂️ 운동 수행
+
+- 추천받은 운동들의 세트 수를 조절하여 루틴을 짤 수 있습니다
+- 루틴을 짠 뒤 스마트폰의 도움을 받아 세트 수를 원활하게 카운트 할 수 있습니다
+
+### 3. 📊 운동 통계
+
+- 날짜별로 운동명과 세트 수를 그래프 형태로 시각화하여 보여줍니다
+
+## 🔧 기술 스택
+
+- **Flutter**: 어플리케이션 UI 개발에 사용되었습니다
+- **Dart**: Flutter 어플리케이션 로직 구현에 사용되었습니다
+- **Firebase Firestore**: 사용자 데이터 및 운동 기록 저장에 사용되었습니다
+- **Firebase Auth**: 사용자 인증에 사용되었습니다
+
+##
