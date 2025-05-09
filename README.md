@@ -1,6 +1,7 @@
 # fitCare
 
-![KakaoTalk_20250510_070730861.png](attachment:a36677c9-3150-4b75-964c-08211684682d:KakaoTalk_20250510_070730861.png)
+![KakaoTalk_20250510_070730861](https://github.com/user-attachments/assets/e3807295-c592-407b-87d6-997020d87025)
+
 
 # fitCare
 
@@ -8,7 +9,8 @@
 
 ## fitCare 는 장애인을 위한 맞춤형 운동 루틴 추천 및 운동 기록 통계 어플리케이션 입니다.
 
-![image.png](attachment:fbcc6af6-4e2a-4f2a-8e2e-722f0cc77779:image.png)
+![image](https://github.com/user-attachments/assets/2b0467a4-b884-472a-a986-dd50eddef644)
+
 
 ## 📱 주요 기능
 
