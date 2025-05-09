@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // ✅ 추가
 import 'package:provider/provider.dart';
+import 'package:sw_hackathon/route/recommand.dart';
 
 import 'firebase_options.dart';
 import 'package:sw_hackathon/providers/exercise_data.dart';
@@ -62,6 +63,7 @@ class _MyAppState extends State<MyApp> {
         '/personalsetting': (context) => const Personalsetting(),
         '/sign-in': (context) => const Loginscreen(),
         '/profile': (context) => const ProfilePage(),
+        '/recommand':(context) => const Recommand(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 161, 198, 92)),
