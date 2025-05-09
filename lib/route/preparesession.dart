@@ -14,13 +14,19 @@ class _PreparesessionState extends State<Preparesession> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        
-      ),
-      body: Column(
-        children: [
-          ExerciseRecommand(uid: user!.uid)
-        ],
+      appBar: AppBar(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/session');
+              },
+              child: Text('Start Session'),
+            ),
+            ExerciseRecommand(uid: user!.uid),
+          ],
+        ),
       ),
     );
   }
