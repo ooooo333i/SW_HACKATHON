@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:horizontal_week_calendar/horizontal_week_calendar.dart';
 import 'package:sw_hackathon/UI/menu_container.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -32,7 +33,10 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text(
           'fitCare',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+          style: GoogleFonts.titanOne(
+            fontSize: 40,           // 글자 크기
+            color: Color.fromARGB(255, 161, 198, 40),
+          ),
         ),
         leading: IconButton(
           onPressed: () {
