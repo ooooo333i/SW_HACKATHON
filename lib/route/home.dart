@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
                     child: MenuContainer(
                       title: '운동\n시작하기',
                       description: '나에게 알맞은 루틴으로 운동해보세요.',
-                      icon: Icons.fitness_center,
+                      icon: Icons.directions_run,
                       onTap: () {
                         Navigator.pushNamed(context, '/recommend');
                       },
@@ -90,13 +90,15 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
+              MenuContainer(
+                title: '개인정보 수정',
+                description: '원활한 추천을 위해 정보를 알맞게 작성해주세요.',
+                icon: Icons.settings_accessibility,
+                onTap: () {
                   Navigator.pushNamed(context, '/personalsetting').then((_) {
                     setState(() {}); // 개인설정 페이지에서 돌아오면 setState로 리렌더링
                   });
                 },
-                icon: Icon(Icons.settings_accessibility),
               ),
             ],
           ),
