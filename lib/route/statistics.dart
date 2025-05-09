@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -13,13 +12,21 @@ class Statistics extends StatefulWidget {
 }
 
 class _StatisticsState extends State<Statistics> {
-  final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
   Map<String, int> weeklySetData = {
-    '월': 0, '화': 0, '수': 0, '목': 0, '금': 0, '토': 0, '일': 0
+    '월': 0,
+    '화': 0,
+    '수': 0,
+    '목': 0,
+    '금': 0,
+    '토': 0,
+    '일': 0,
   };
-  Map<String, int> exerciseCounts = {}; // 운동 이름별 빈도수
-  int totalSessions = 0;
+
+  final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
   int totalSets = 0;
+  int totalSessions = 0;
+  int longestStreak = 0;
 
   @override
   void initState() {
@@ -30,6 +37,7 @@ class _StatisticsState extends State<Statistics> {
   Future<void> fetchAllSessionData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
     final uid = user.uid;
 
     final snapshot = await FirebaseFirestore.instance
@@ -38,11 +46,11 @@ class _StatisticsState extends State<Statistics> {
         .collection('sessions')
         .get();
 
-    Map<String, int> tempDayData = {
-      '월': 0, '화': 0, '수': 0, '목': 0, '금': 0, '토': 0, '일': 0
+    Map<String, int> tempWeekly = {
+      '월': 0, '화': 0, '수': 0, '목': 0, '금': 0, '토': 0, '일': 0,
     };
-    Map<String, int> tempExerciseCounts = {};
-    int totalSetCounter = 0;
+
+    Map<String, int> dateToSet = {}; // yyyy-MM-dd → 세트 수
 
     for (var doc in snapshot.docs) {
       final data = doc.data();
@@ -50,112 +58,64 @@ class _StatisticsState extends State<Statistics> {
       final exercises = List<Map<String, dynamic>>.from(data['exercises'] ?? []);
 
       if (timestamp == null) continue;
-      final weekday = DateFormat('E', 'ko_KR').format(timestamp);
 
+      final weekday = DateFormat('E', 'ko_KR').format(timestamp);
+      final dateKey = DateFormat('yyyy-MM-dd').format(timestamp);
+
+      int sets = 0;
       for (final e in exercises) {
-        final name = e['name'] ?? '기타';
-        final sets = (e['sets'] ?? 0) as int;
-        totalSetCounter += sets;
-        tempDayData[weekday] = (tempDayData[weekday] ?? 0) + sets;
-        tempExerciseCounts[name] = (tempExerciseCounts[name] ?? 0) + sets;
+        sets += ((e['sets'] ?? 0) as num).toInt();
       }
+
+      // 주간 세트 요약
+      if (tempWeekly.containsKey(weekday)) {
+        tempWeekly[weekday] = tempWeekly[weekday]! + sets;
+      }
+
+      // 날짜별 세트 수 기록
+      dateToSet[dateKey] = (dateToSet[dateKey] ?? 0) + sets;
+    }
+
+    // 총 세션 수
+    final allDates = dateToSet.keys.toList();
+    allDates.sort(); // 날짜순 정렬
+
+    int streak = 0;
+    int maxStreak = 0;
+    DateTime? prev;
+
+    for (final dateStr in allDates) {
+      final current = DateTime.parse(dateStr);
+      if (prev == null || current.difference(prev).inDays == 1) {
+        streak++;
+      } else if (current.difference(prev).inDays == 0) {
+        // 같은 날이면 유지
+      } else {
+        streak = 1;
+      }
+      maxStreak = maxStreak < streak ? streak : maxStreak;
+      prev = current;
     }
 
     setState(() {
+      weeklySetData = tempWeekly;
+      totalSets = dateToSet.values.fold(0, (sum, e) => sum + e);
       totalSessions = snapshot.docs.length;
-      totalSets = totalSetCounter;
-      weeklySetData = tempDayData;
-      exerciseCounts = tempExerciseCounts;
+      longestStreak = maxStreak;
     });
   }
 
-  Widget _buildSummaryCard(String label, String value, IconData icon) {
+  Widget _buildSummaryCard(String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Icon(icon, size: 28, color: Colors.green),
-            const SizedBox(height: 8),
-            Text(label, style: TextStyle(color: Colors.black54)),
-            Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          ],
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.2),
+          child: Icon(icon, color: color),
         ),
-      ),
-    );
-  }
-
-  Widget _buildWeeklyLineChart() {
-    return SizedBox(
-      height: 200,
-      child: LineChart(
-        LineChartData(
-          minY: 0,
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  int index = value.toInt();
-                  if (index >= 0 && index < weekdays.length) {
-                    return Text(weekdays[index]);
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-          ),
-          borderData: FlBorderData(show: true),
-          lineBarsData: [
-            LineChartBarData(
-              spots: List.generate(
-                weekdays.length,
-                (i) => FlSpot(i.toDouble(), (weeklySetData[weekdays[i]] ?? 0).toDouble()),
-              ),
-              isCurved: true,
-              color: Colors.blue,
-              dotData: FlDotData(show: true),
-              belowBarData: BarAreaData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExerciseFrequencyChart() {
-    final sorted = exerciseCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return SizedBox(
-      height: 250,
-      child: BarChart(
-        BarChartData(
-          barGroups: List.generate(sorted.length, (i) {
-            final e = sorted[i];
-            return BarChartGroupData(
-              x: i,
-              barRods: [BarChartRodData(toY: e.value.toDouble(), color: Colors.orange)],
-            );
-          }),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  int idx = value.toInt();
-                  if (idx < sorted.length) {
-                    return Text(sorted[idx].key, style: TextStyle(fontSize: 10));
-                  }
-                  return Text('');
-                },
-              ),
-            ),
-          ),
-        ),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
+        trailing: Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -164,28 +124,64 @@ class _StatisticsState extends State<Statistics> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('운동 통계')),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSummaryCard("총 세션", "$totalSessions", Icons.calendar_today),
-                _buildSummaryCard("총 세트 수", "$totalSets", Icons.fitness_center),
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Text("요일별 세트 수", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _buildWeeklyLineChart(),
-            const SizedBox(height: 30),
-            const Text("운동 종류별 빈도 수", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _buildExerciseFrequencyChart(),
-          ],
-        ),
+        child: weeklySetData.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildSummaryCard("총 세트 수", "$totalSets 세트", Icons.fitness_center, Colors.green),
+                    _buildSummaryCard("총 세션 수", "$totalSessions 회", Icons.calendar_today, Colors.blue),
+                    _buildSummaryCard("연속 운동일", "$longestStreak 일", Icons.local_fire_department, Colors.orange),
+                    const SizedBox(height: 30),
+                    const Text("요일별 운동량", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    AspectRatio(
+                      aspectRatio: 1.6,
+                      child: LineChart(
+                        LineChartData(
+                          minY: 0,
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: true),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (value, _) {
+                                  int index = value.toInt();
+                                  if (index >= 0 && index < weekdays.length) {
+                                    return Text(weekdays[index]);
+                                  }
+                                  return const Text('');
+                                },
+                              ),
+                            ),
+                          ),
+                          borderData: FlBorderData(show: true),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: List.generate(
+                                weekdays.length,
+                                (index) {
+                                  String day = weekdays[index];
+                                  double sets = (weeklySetData[day] ?? 0).toDouble();
+                                  return FlSpot(index.toDouble(), sets);
+                                },
+                              ),
+                              isCurved: true,
+                              color: Colors.teal,
+                              dotData: FlDotData(show: true),
+                              belowBarData: BarAreaData(show: true, color: Colors.teal.withOpacity(0.2)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }

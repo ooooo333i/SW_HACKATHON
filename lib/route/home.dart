@@ -1,11 +1,8 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sw_hackathon/UI/youtube.dart';
-import 'package:sw_hackathon/UI/exercise_recommand.dart';
-import 'package:sw_hackathon/UI/menu_container.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:horizontal_week_calendar/horizontal_week_calendar.dart';
+import 'package:sw_hackathon/UI/menu_container.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,18 +12,25 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  DateTime selectedDate = DateTime.now(); // 초기 선택 날짜
+  DateTime selectedDate = DateTime.now();
+
+  Future<Map<String, dynamic>?> fetchUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    return doc.data();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     final today = DateTime.now();
     final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
     final endOfWeek = today.add(Duration(days: 7 - today.weekday));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'fitCare',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
         ),
@@ -34,7 +38,7 @@ class _HomeState extends State<Home> {
           onPressed: () {
             Navigator.pushNamed(context, '/prepare');
           },
-          icon: Icon(Icons.play_arrow),
+          icon: const Icon(Icons.play_arrow),
         ),
         actions: [
           IconButton(
@@ -46,17 +50,17 @@ class _HomeState extends State<Home> {
                 Navigator.pushNamed(context, '/profile');
               }
             },
-            icon: Icon(Icons.perm_identity),
+            icon: const Icon(Icons.perm_identity),
           ),
         ],
       ),
       body: SingleChildScrollView(
-  
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
-              SizedBox(height: 60,),
+              
+              const SizedBox(height: 20),
               HorizontalWeekCalendar(
                 minDate: startOfWeek,
                 maxDate: endOfWeek,
@@ -64,14 +68,43 @@ class _HomeState extends State<Home> {
                 showTopNavbar: false,
                 onDateChange: (date) {
                   setState(() {
-                    selectedDate = date; // 날짜 변경 시 setState로 새로고침
+                    selectedDate = date;
                   });
+                },
+              ),
+              FutureBuilder<Map<String, dynamic>?>(
+                future: fetchUserInfo(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return const Text("개인정보를 불러올 수 없습니다.");
+                  }
+
+                  final data = snapshot.data!;
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                    color: Colors.grey.shade100,
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        '역할: ${data["role"] ?? "없음"}\n'
+                        '성별: ${data["gender"] ?? "없음"}\n'
+                        '나이: ${data["age"] ?? "없음"}\n'
+                        '장애 등급: ${data["disabilityLevel"] ?? "없음"}\n'
+                        '장애 분류: ${data["disabilityType"] ?? "없음"}\n'
+                        '척수장애 세부: ${data["spinalDetail"] ?? "해당 없음"}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  );
                 },
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  
                   Expanded(
                     child: MenuContainer(
                       title: '운동\n추천받기',
@@ -82,14 +115,14 @@ class _HomeState extends State<Home> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 10), // 두 컨테이너 사이에 간격 추가
+                  const SizedBox(width: 10),
                   Expanded(
                     child: MenuContainer(
                       title: '운동\n시작하기',
                       description: '알맞은 루틴으로 운동해보세요.',
                       icon: Icons.directions_run,
                       onTap: () {
-                        Navigator.pushNamed(context, '/prepare');
+                        Navigator.pushNamed(context, '/prevsession');
                       },
                     ),
                   ),
@@ -101,7 +134,7 @@ class _HomeState extends State<Home> {
                 icon: Icons.settings_accessibility,
                 onTap: () {
                   Navigator.pushNamed(context, '/personalsetting').then((_) {
-                    setState(() {}); // 개인설정 페이지에서 돌아오면 setState로 리렌더링
+                    setState(() {}); // 돌아와서 새로고침
                   });
                 },
               ),
@@ -111,10 +144,13 @@ class _HomeState extends State<Home> {
                 icon: Icons.bar_chart,
                 onTap: () {
                   Navigator.pushNamed(context, '/statistics').then((_) {
-                    setState(() {}); // 개인설정 페이지에서 돌아오면 setState로 리렌더링
+                    setState(() {});
                   });
                 },
               ),
+
+            
+             
             ],
           ),
         ),

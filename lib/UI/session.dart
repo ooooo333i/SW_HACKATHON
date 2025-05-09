@@ -15,11 +15,12 @@ class _SessionState extends State<Session> {
   int currentIndex = 0;
   int currentSet = 1;
   late ValueNotifier<double> progressNotifier;
+  late List<ExerciseSet> exercises;
 
   @override
   void initState() {
     super.initState();
-    progressNotifier = ValueNotifier(0.0); // 운동 시작 전 진척도 0
+    progressNotifier = ValueNotifier(0.0);
   }
 
   @override
@@ -32,7 +33,7 @@ class _SessionState extends State<Session> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
 
-    if (args == null || args is! List<ExerciseSet> || args.isEmpty) {
+    if (args == null || args is! List || args.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text("운동 세션")),
         body: const Center(
@@ -45,26 +46,36 @@ class _SessionState extends State<Session> {
       );
     }
 
-    final List<ExerciseSet> exercises = args;
+    // args를 ExerciseSet 리스트로 변환
+    exercises = args.map<ExerciseSet>((e) {
+      if (e is ExerciseSet) return e;
+      return ExerciseSet(name: e['name'], sets: e['sets'] ?? 1);
+    }).toList();
+
     final totalExercises = exercises.length;
     final currentExercise = exercises[currentIndex];
     final totalSets = currentExercise.sets;
 
-    // 전체 세션 진척도: 전체 운동 개수 기준
+    // 전체 진척도 계산
     final overallProgress =
         ((currentIndex * totalSets) + currentSet) / (totalExercises * totalSets);
     progressNotifier.value = overallProgress;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("운동 세션"),
-      actions: [
-        IconButton(onPressed: (){}, icon: Icon(FontAwesomeIcons.heartPulse))
-      ],),
+      appBar: AppBar(
+        title: const Text("운동 세션"),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(FontAwesomeIcons.heartPulse),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            // 원형 진척도 표시
+            // 진척도
             Center(
               child: DashedCircularProgressBar.square(
                 dimensions: 150,
@@ -96,7 +107,7 @@ class _SessionState extends State<Session> {
             ),
             const SizedBox(height: 30),
 
-            // 운동 카드
+            // 현재 운동 카드
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -127,6 +138,7 @@ class _SessionState extends State<Session> {
 
             const SizedBox(height: 40),
 
+            // 버튼
             ElevatedButton.icon(
               icon: Icon(
                 currentIndex < totalExercises - 1 ||
@@ -148,29 +160,34 @@ class _SessionState extends State<Session> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: () {
-                setState(() {
-                  if (currentSet < currentExercise.sets) {
-                    currentSet++; // 다음 세트
-                  } else if (currentIndex < totalExercises - 1) {
-                    currentIndex++; // 다음 운동
+              onPressed: () async {
+                if (currentSet < currentExercise.sets) {
+                  setState(() {
+                    currentSet++;
+                  });
+                } else if (currentIndex < totalExercises - 1) {
+                  setState(() {
+                    currentIndex++;
                     currentSet = 1;
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text("운동 완료"),
-                        content: const Text("모든 운동 세트를 완료했습니다!"),
-                        actions: [
-                          TextButton(
-                            onPressed: () => {Navigator.pushNamed(context, '/'),saveSessionData(exercises)},
-                            child: const Text("확인"),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                });
+                  });
+                } else {
+                  // 세션 종료
+                  await saveSessionData(exercises);
+                  if (!mounted) return;
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("운동 완료"),
+                      content: const Text("모든 운동 세트를 완료했습니다!"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pushNamed(context, '/'),
+                          child: const Text("확인"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
             ),
           ],
