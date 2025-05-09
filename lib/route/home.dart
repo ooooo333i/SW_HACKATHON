@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
                       description: '알맞은 루틴으로 운동해보세요.',
                       icon: Icons.directions_run,
                       onTap: () {
-                        Navigator.pushNamed(context, '/recommend');
+                        Navigator.pushNamed(context, '/prepare');
                       },
                     ),
                   ),

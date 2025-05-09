@@ -39,6 +39,7 @@ dependencies:
   youtube_player_flutter: ^9.1.1
   horizontal_week_calendar: ^0.0.20
   dashed_circular_progress_bar: ^0.0.6
+  font_awesome_flutter: ^10.0.0 #
   
 
 
