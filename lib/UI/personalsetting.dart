@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Personalsetting extends StatefulWidget {
   const Personalsetting({super.key});
-
+  
   @override
   State<Personalsetting> createState() => _PersonalsettingState();
 }
@@ -14,6 +16,7 @@ class PersonalInfo {
   int? age;
   String disabilityLevel;
   String disabilityType;
+
   PersonalInfo({
     required this.role,
     required this.gender,
@@ -21,28 +24,72 @@ class PersonalInfo {
     required this.disabilityLevel,
     required this.disabilityType,
   });
+
+  @override
+  String toString() {
+    return '역할: $role, 성별: $gender, 나이: ${age ?? "미입력"}, 장애 등급: $disabilityLevel, 장애 분류: $disabilityType';
+  }
 }
 
 class _PersonalsettingState extends State<Personalsetting> {
   int selectedRoleIndex = 0;
   int selectedGenderIndex = 0;
   int? calculatedAge;
+  int selectedSpinalIndex = 0;
 
   final List<DataTab> userRoles = [DataTab(title: "본인"), DataTab(title: "보호자")];
   final List<DataTab> genders = [DataTab(title: "남성"), DataTab(title: "여성")];
-
   final List<String> disabilityLevels = [
     "1급", "2급", "3급", "4급", "5급", "6급", "불완전마비", "완전마비",
   ];
   final List<String> disabilityTypes = [
-    "시각장애", "지적장애", "척수장애", "청각장애",
+    "시각장애", "지적장애", "척수장애", "청각장애"
   ];
 
   late PersonalInfo userInfo;
   String selectedDisabilityLevel = "1급";
   String selectedDisabilityType = "청각장애";
-  int selectedSpinalIndex = 0; // 척수장애 하위 선택을 위한 변수
 
+  //데이터 연동 부분
+  Future<void> saveUserInfoToFirestore() async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("로그인이 필요합니다.")),
+    );
+    return;
+  }
+
+  final uid = user.uid;
+
+  // 저장할 데이터 Map으로 변환
+  final userData = {
+    "role": userInfo.role,
+    "gender": userInfo.gender,
+    "age": userInfo.age,
+    "disabilityLevel": userInfo.disabilityLevel,
+    "disabilityType": userInfo.disabilityType,
+    "spinalDetail": selectedDisabilityType == "척수장애"
+        ? ["T6이상", "T6미만", "사지마비"][selectedSpinalIndex]
+        : null,
+  };
+
+  try {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .set(userData); // 또는 .update(userData) 가능
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("개인정보가 저장되었습니다.")),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("저장 실패: $e")),
+    );
+  }
+}
   @override
   void initState() {
     super.initState();
@@ -57,69 +104,56 @@ class _PersonalsettingState extends State<Personalsetting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('개인설정', style: TextStyle(fontSize: 30))),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 30),
+      appBar: AppBar(
+        title: const Text('개인설정', style: TextStyle(fontSize: 30)),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("역할 선택", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            FlutterToggleTab(
+              dataTabs: userRoles,
+              width: 90,
+              borderRadius: 20,
+              selectedIndex: selectedRoleIndex,
+              selectedBackgroundColors: [Color(0xFFA1C65C)],
+              selectedTextStyle: TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              unSelectedTextStyle: TextStyle(color: Colors.black87, fontSize: 16),
+              selectedLabelIndex: (index) {
+                setState(() {
+                  selectedRoleIndex = index;
+                  userInfo.role = userRoles[index].title ?? '미입력';
+                });
+              },
+            ),
 
-              // 역할 선택
-              FlutterToggleTab(
-                dataTabs: userRoles,
-                width: 90,
-                borderRadius: 20,
-                selectedIndex: selectedRoleIndex,
-                selectedBackgroundColors: [const Color.fromARGB(255, 161, 198, 92)],
-                selectedTextStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                unSelectedTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
-                selectedLabelIndex: (index) {
-                  setState(() {
-                    selectedRoleIndex = index;
-                    userInfo.role = userRoles[index].title ?? '미입력';
-                  });
-                },
-              ),
+            const SizedBox(height: 20),
+            Text("성별 선택", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            FlutterToggleTab(
+              dataTabs: genders,
+              width: 90,
+              borderRadius: 20,
+              selectedIndex: selectedGenderIndex,
+              selectedBackgroundColors: [Color(0xFFA1C65C)],
+              selectedTextStyle: TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              unSelectedTextStyle: TextStyle(color: Colors.black87, fontSize: 16),
+              selectedLabelIndex: (index) {
+                setState(() {
+                  selectedGenderIndex = index;
+                  userInfo.gender = genders[index].title ?? '미입력';
+                });
+              },
+            ),
 
-              const SizedBox(height: 20),
-
-              // 성별 선택
-              FlutterToggleTab(
-                dataTabs: genders,
-                width: 90,
-                borderRadius: 20,
-                selectedIndex: selectedGenderIndex,
-                selectedBackgroundColors: [const Color.fromARGB(255, 161, 198, 92)],
-                selectedTextStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                unSelectedTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
-                selectedLabelIndex: (index) {
-                  setState(() {
-                    selectedGenderIndex = index;
-                    userInfo.gender = genders[index].title ?? '미입력';
-                  });
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              // 생년월일 선택 → 나이 저장
-              ElevatedButton(
+            const SizedBox(height: 30),
+            Center(
+              child: ElevatedButton(
                 onPressed: () async {
                   final DateTime? picked = await showDatePicker(
                     context: context,
@@ -134,90 +168,104 @@ class _PersonalsettingState extends State<Personalsetting> {
                     });
                   }
                 },
-                child: const Text('생년월일 선택'),
+                child: Text('생년월일 선택'),
               ),
+            ),
 
+            const SizedBox(height: 20),
+            Text("장애 등급", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            DropdownButton<String>(
+              value: selectedDisabilityLevel,
+              items: disabilityLevels.map((String level) {
+                return DropdownMenuItem<String>(
+                  value: level,
+                  child: Text(level),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedDisabilityLevel = newValue ?? '1급';
+                  userInfo.disabilityLevel = newValue ?? "미입력";
+                });
+              },
+            ),
+
+            const SizedBox(height: 10),
+            Text("장애 분류", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            DropdownButton<String>(
+              value: selectedDisabilityType,
+              items: disabilityTypes.map((String type) {
+                return DropdownMenuItem<String>(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedDisabilityType = newValue ?? '청각장애';
+                  userInfo.disabilityType = newValue ?? "미입력";
+                });
+              },
+            ),
+
+            if (selectedDisabilityType == '척수장애') ...[
               const SizedBox(height: 20),
-
-              // 장애 등급 선택 (드롭다운 메뉴)
-              DropdownButton<String>(
-                value: selectedDisabilityLevel,
-                hint: const Text('장애 등급 선택'),
-                items: disabilityLevels.map((String level) {
-                  return DropdownMenuItem<String>(
-                    value: level,
-                    child: Text(level),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
+              FlutterToggleTab(
+                width: 90,
+                borderRadius: 20,
+                selectedIndex: selectedSpinalIndex,
+                selectedBackgroundColors: [Color(0xFFA1C65C)],
+                selectedTextStyle: TextStyle(
+                  color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                unSelectedTextStyle: TextStyle(color: Colors.black87, fontSize: 16),
+                dataTabs: [
+                  DataTab(title: 'T6이상'),
+                  DataTab(title: 'T6미만'),
+                  DataTab(title: '사지마비'),
+                ],
+                selectedLabelIndex: (index) {
                   setState(() {
-                    selectedDisabilityLevel = newValue ?? '1급';
-                    userInfo.disabilityLevel = newValue ?? "미입력";
+                    selectedSpinalIndex = index;
                   });
                 },
               ),
-
-              // 장애 분류 선택 (드롭다운 메뉴)
-              DropdownButton<String>(
-                value: selectedDisabilityType,
-                hint: const Text('장애 분류 선택'),
-                items: disabilityTypes.map((String type) {
-                  return DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedDisabilityType = newValue ?? '청각장애';
-                    userInfo.disabilityType = newValue ?? "미입력";
-                  });
-                },
-              ),
-
-              // 척수장애 선택 시, 추가 선택지 표시
-              if (selectedDisabilityType == '척수장애') ...[
-                const SizedBox(height: 20),
-                FlutterToggleTab(
-                  width: 90,
-                  borderRadius: 20,
-                  selectedIndex: selectedSpinalIndex,
-                  selectedBackgroundColors: [const Color.fromARGB(255, 161, 198, 92)],
-                  selectedTextStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  unSelectedTextStyle: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  dataTabs: [
-                    DataTab(title: 'T6이상'),
-                    DataTab(title: 'T6미만'),
-                    DataTab(title: '사지마비'),
-                  ],
-                  selectedLabelIndex: (index) {
-                    setState(() {
-                      selectedSpinalIndex = index;
-                    });
-                  },
-                ),
-              ],
-
-              const SizedBox(height: 20),
-
-              // 결과 출력
-              Text(
-                '역할: ${userInfo.role}\n성별: ${userInfo.gender}\n나이: ${userInfo.age ?? "미입력"}\n장애 등급: ${userInfo.disabilityLevel}\n장애 분류: ${userInfo.disabilityType}\n척수장애 세부: ${selectedDisabilityType == "척수장애" ? ["T6이상", "T6미만", "사지마비"][selectedSpinalIndex] : "해당 없음"}',
-                style: const TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              IconButton(onPressed: (){print(userInfo.toString());}, icon: Icon(Icons.data_array)),
-              //개인정보 저장 필요
             ],
-          ),
+            
+              Card(
+                margin: EdgeInsets.symmetric(horizontal: 16.0),
+                color: Colors.grey.shade100,
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    '역할: ${userInfo.role}\n'
+                    '성별: ${userInfo.gender}\n'
+                    '나이: ${userInfo.age ?? "미입력"}\n'
+                    '장애 등급: ${userInfo.disabilityLevel}\n'
+                    '장애 분류: ${userInfo.disabilityType}\n'
+                    '척수장애 세부: ${selectedDisabilityType == "척수장애" ? ["T6이상", "T6미만", "사지마비"][selectedSpinalIndex] : "해당 없음"}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+              
+            const SizedBox(height: 30),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  saveUserInfoToFirestore();
+                  print(userInfo.toString());
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.save),
+                label: Text("개인정보 저장"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[400],
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
