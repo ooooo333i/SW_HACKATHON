@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_ui_auth: ^1.16.1
   flutter_toggle_tab: ^1.5.1
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:

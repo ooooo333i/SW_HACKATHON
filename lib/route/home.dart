@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sw_hackathon/UI/youtube.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -45,8 +47,13 @@ class _HomeState extends State<Home> {
                 icon: Icon(Icons.settings_accessibility),
               ),
               IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.add_circle_rounded),
+                icon: Icon(Icons.play_circle),
+                onPressed: () {
+                  showYoutubePlayerFromUrl(
+                    context,
+                    "https://www.youtube.com/watch?v=pdojBp7aoBc",
+                  );
+                },
               ),
               IconButton(
                 onPressed: () {},
