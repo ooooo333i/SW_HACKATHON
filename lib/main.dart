@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sw_hackathon/route/home.dart';
+import 'package:sw_hackathon/login/loginscreen.dart';
+import 'package:sw_hackathon/login/profile.dart';
 
 void main() {
   
@@ -15,6 +17,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const Home(),
+        '/sign-in': (context) => const Loginscreen(),
+        '/profile': (context) => const ProfilePage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 145, 189, 64)),
