@@ -32,6 +32,27 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+      body: SingleChildScrollView(
+        child: Padding(padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
+                  
+                ),
+                child: Column(
+                  children: [
+                    
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.add_circle_rounded)),
+                  ],
+                ),
+                ),
+      ),
     );
   }
 }
