@@ -214,6 +214,7 @@ class _PersonalsettingState extends State<Personalsetting> {
                 style: const TextStyle(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
+              IconButton(onPressed: (){print(userInfo.toString());}, icon: Icon(Icons.data_array))
             ],
           ),
         ),
