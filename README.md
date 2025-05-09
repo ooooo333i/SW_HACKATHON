@@ -35,4 +35,6 @@
 - **Firebase Firestore**: 사용자 데이터 및 운동 기록 저장에 사용되었습니다
 - **Firebase Auth**: 사용자 인증에 사용되었습니다
 
-##
+## 📃 사용 데이터
+본 프로젝트의 운동 추천 부분은 문화 빅데이터 포털에 국민체육진흥공단이 게시한 `장애인 체력측정별 추천 운동 데이터`를 이용해 작성되었습니다
+https://www.bigdata-culture.kr/bigdata/user/data_market/detail.do?id=37c48c00-151f-11ec-bbc0-d7035fffebeb
