@@ -13,6 +13,10 @@ antmdrl0531@gmail.com
 ## Android apk
 프로젝트 상단 apk-release.zip 파일의 압축을 풀어 설치 가능
 
+## 테스트용 계정
+id : sw@gmail.com
+pw : 111111
+
 ## fitCare 는 장애인을 위한 맞춤형 운동 루틴 추천 및 운동 기록 통계 어플리케이션 입니다.
 
 ![image](https://github.com/user-attachments/assets/2b0467a4-b884-472a-a986-dd50eddef644)
